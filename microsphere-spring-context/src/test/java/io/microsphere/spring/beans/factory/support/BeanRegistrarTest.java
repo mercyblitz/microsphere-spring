@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -45,6 +46,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.beans.factory.config.BeanDefinition.ROLE_APPLICATION;
 import static org.springframework.beans.factory.config.BeanDefinition.ROLE_INFRASTRUCTURE;
+import static org.springframework.beans.factory.config.BeanDefinition.ROLE_SUPPORT;
 
 /**
  * {@link BeanRegistrar} Test
@@ -143,4 +145,62 @@ class BeanRegistrarTest {
             assertEquals(role, beanDefinition.getRole());
         }
     }
+
+    @Test
+    void testRegisterInfrastructureBeanWithName() {
+        boolean registered = registerInfrastructureBean(beanFactory, "myUser", User.class);
+        assertTrue(registered);
+        assertTrue(beanFactory.containsBeanDefinition("myUser"));
+        BeanDefinition beanDef = beanFactory.getBeanDefinition("myUser");
+        assertEquals(ROLE_INFRASTRUCTURE, beanDef.getRole());
+    }
+
+    @Test
+    void testRegisterBeanDefinitionWithNameAndType() {
+        boolean registered = registerBeanDefinition(beanFactory, "myUser", User.class);
+        assertTrue(registered);
+        assertTrue(beanFactory.containsBeanDefinition("myUser"));
+    }
+
+    @Test
+    void testRegisterBeanDefinitionWithRole() {
+        boolean registered = registerBeanDefinition(beanFactory, "myUser", User.class, ROLE_SUPPORT);
+        assertTrue(registered);
+        BeanDefinition beanDef = beanFactory.getBeanDefinition("myUser");
+        assertEquals(ROLE_SUPPORT, beanDef.getRole());
+    }
+
+    @Test
+    void testRegisterBeanDefinitionWithConstructorArgs() {
+        boolean registered = registerBeanDefinition(beanFactory, "myUser", User.class, new Object[0]);
+        assertTrue(registered);
+        assertTrue(beanFactory.containsBeanDefinition("myUser"));
+    }
+
+    @Test
+    void testRegisterBeanDefinitionWithOverridingFalse() {
+        GenericBeanDefinition beanDef = new GenericBeanDefinition();
+        beanDef.setBeanClass(User.class);
+        String beanName = "overrideTestUser";
+        assertTrue(registerBeanDefinition(beanFactory, beanName, beanDef, true));
+        assertFalse(registerBeanDefinition(beanFactory, beanName, beanDef, false));
+    }
+
+    @Test
+    void testRegisterBeanDefinitionWithOverridingTrue() {
+        GenericBeanDefinition beanDef = new GenericBeanDefinition();
+        beanDef.setBeanClass(User.class);
+        String beanName = "overrideTestUser2";
+        assertTrue(registerBeanDefinition(beanFactory, beanName, beanDef, true));
+        assertTrue(registerBeanDefinition(beanFactory, beanName, beanDef, true));
+    }
+
+    @Test
+    void testRegisterSpringFactoriesBeansAlreadyRegistered() {
+        int count1 = registerSpringFactoriesBeans((BeanFactory) beanFactory, Bean.class);
+        assertEquals(2, count1);
+        int count2 = registerSpringFactoriesBeans((BeanFactory) beanFactory, Bean.class);
+        assertEquals(0, count2);
+    }
+
 }

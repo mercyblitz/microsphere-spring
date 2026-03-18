@@ -5,14 +5,22 @@ import io.microsphere.spring.beans.test.TestBean;
 import io.microsphere.spring.beans.test.TestBean2;
 import io.microsphere.spring.test.domain.User;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.ListableBeanFactory;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.StaticListableBeanFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.core.Ordered;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.env.Environment;
 
@@ -25,6 +33,8 @@ import static io.microsphere.spring.beans.BeanUtils.getBeanNames;
 import static io.microsphere.spring.beans.BeanUtils.getOptionalBean;
 import static io.microsphere.spring.beans.BeanUtils.getSortedBeans;
 import static io.microsphere.spring.beans.BeanUtils.invokeAwareInterfaces;
+import static io.microsphere.spring.beans.BeanUtils.invokeBeanInterfaces;
+import static io.microsphere.spring.beans.BeanUtils.invokeInitializingBean;
 import static io.microsphere.spring.beans.BeanUtils.isBeanPresent;
 import static io.microsphere.spring.beans.BeanUtils.resolveBeanType;
 import static io.microsphere.spring.beans.BeanUtils.sort;
@@ -361,6 +371,99 @@ class BeanUtilsTest {
 
         assertEquals(-1, namingBean.compareTo(namingBean2));
 
+    }
+
+    @Test
+    void testIsBeanPresentWithNonConfigurableBeanFactory() {
+        StaticListableBeanFactory beanFactory = new StaticListableBeanFactory();
+        beanFactory.addBean("testBean", new TestBean());
+        // StaticListableBeanFactory is ListableBeanFactory but NOT ConfigurableBeanFactory
+        assertTrue(isBeanPresent(beanFactory, TestBean.class.getName(), false));
+        assertFalse(isBeanPresent(beanFactory, "com.example.NonExistentClass12345", false));
+    }
+
+    @Test
+    void testGetOptionalBeanMultiple() {
+        DefaultListableBeanFactory registry = new DefaultListableBeanFactory();
+        registerBeans(registry, TestBean.class, TestBean2.class);
+        // Both TestBean and TestBean2 implement Bean - multiple beans of type Bean exist
+        io.microsphere.spring.beans.test.Bean bean = getOptionalBean(registry, io.microsphere.spring.beans.test.Bean.class);
+        assertNull(bean);
+    }
+
+    @Test
+    void testGetBeanIfAvailableNotFound() {
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        TestBean result = getBeanIfAvailable(beanFactory, "nonExistentBean", TestBean.class);
+        assertNull(result);
+    }
+
+    @Test
+    void testGetSortedBeansWithNonListableBeanFactory() {
+        BeanFactory nonListable = new NonListableBeanFactory();
+        List<TestBean> beans = getSortedBeans(nonListable, TestBean.class);
+        assertTrue(beans.isEmpty());
+    }
+
+    @Test
+    void testInvokeBeanInterfacesWithApplicationContext() {
+        boolean[] afterPropertiesSetCalled = {false};
+        InitializingBean bean = () -> afterPropertiesSetCalled[0] = true;
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.refresh();
+        invokeBeanInterfaces(bean, (ApplicationContext) context);
+        assertTrue(afterPropertiesSetCalled[0]);
+        context.close();
+    }
+
+    @Test
+    void testInvokeBeanInterfacesWithConfigurableApplicationContext() {
+        boolean[] afterPropertiesSetCalled = {false};
+        InitializingBean bean = () -> afterPropertiesSetCalled[0] = true;
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+        context.refresh();
+        invokeBeanInterfaces(bean, (ConfigurableApplicationContext) context);
+        assertTrue(afterPropertiesSetCalled[0]);
+        context.close();
+    }
+
+    @Test
+    void testInvokeInitializingBeanWithNull() throws Exception {
+        invokeInitializingBean(null);
+    }
+
+    @Test
+    void testInvokeInitializingBean() throws Exception {
+        boolean[] called = {false};
+        InitializingBean bean = () -> called[0] = true;
+        invokeInitializingBean(bean);
+        assertTrue(called[0]);
+    }
+
+    @Test
+    void testInvokeAwareInterfacesWithConfigurableBeanFactory() {
+        TestBean testBean = new TestBean();
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+        invokeAwareInterfaces(testBean, (ConfigurableBeanFactory) beanFactory);
+        assertSame(beanFactory, testBean.getBeanFactory());
+    }
+
+    private static class NonListableBeanFactory implements BeanFactory {
+        @Override public Object getBean(String name) throws BeansException { return null; }
+        @Override public <T> T getBean(String name, Class<T> requiredType) throws BeansException { return null; }
+        @Override public Object getBean(String name, Object... args) throws BeansException { return null; }
+        @Override public <T> T getBean(Class<T> requiredType) throws BeansException { return null; }
+        @Override public <T> T getBean(Class<T> requiredType, Object... args) throws BeansException { return null; }
+        @Override public <T> ObjectProvider<T> getBeanProvider(Class<T> requiredType) { return null; }
+        @Override public <T> ObjectProvider<T> getBeanProvider(ResolvableType requiredType) { return null; }
+        @Override public boolean containsBean(String name) { return false; }
+        @Override public boolean isSingleton(String name) { return false; }
+        @Override public boolean isPrototype(String name) { return false; }
+        @Override public boolean isTypeMatch(String name, ResolvableType typeToMatch) { return false; }
+        @Override public boolean isTypeMatch(String name, Class<?> typeToMatch) { return false; }
+        @Override public Class<?> getType(String name) { return null; }
+        @Override public Class<?> getType(String name, boolean allowFactoryBeanInit) { return null; }
+        @Override public String[] getAliases(String name) { return new String[0]; }
     }
 
 }

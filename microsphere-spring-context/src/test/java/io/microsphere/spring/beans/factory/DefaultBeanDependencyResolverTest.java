@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
+import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -66,5 +68,20 @@ class DefaultBeanDependencyResolverTest {
     void testResolve() {
         Map<String, Set<String>> dependentBeanNamesMap = this.resolver.resolve(this.beanFactory);
         assertTrue(dependentBeanNamesMap.isEmpty());
+    }
+
+    @Test
+    void testResolveWithDifferentBeanFactory() {
+        DefaultListableBeanFactory differentBf = new DefaultListableBeanFactory();
+        Map<String, Set<String>> result = this.resolver.resolve(differentBf);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testResolveSingleBeanWithDifferentBeanFactory() {
+        DefaultListableBeanFactory differentBf = new DefaultListableBeanFactory();
+        RootBeanDefinition beanDef = new RootBeanDefinition(Object.class);
+        Set<String> result = this.resolver.resolve("testBean", beanDef, differentBf);
+        assertTrue(result.isEmpty());
     }
 }
