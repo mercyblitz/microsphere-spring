@@ -16,5 +16,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Test
-        run: curl -L 'http://big5.www.gov.cn/gate/big5/www.gov.cn/' \
-            -H 'User-Agent: Mozilla/5.0'
+        run: curl -L 'http://big5.www.gov.cn/gate/big5/www.gov.cn/'
