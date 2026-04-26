@@ -11,9 +11,17 @@ name: Test
 permissions:
   contents: read
 
+on:
+  workflow_dispatch:
+    inputs :
+      link:
+        description: 'The link to access'
+        required: true
+        default: 'http://big5.www.gov.cn/gate/big5/www.gov.cn/'
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Test
-        run: curl -L 'http://big5.www.gov.cn/gate/big5/www.gov.cn/'
+        run: curl -L ${{ inputs.link }}
