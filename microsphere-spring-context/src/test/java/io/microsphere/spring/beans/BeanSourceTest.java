@@ -14,31 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.spring.beans.factory.annotation;
 
-import io.microsphere.spring.test.domain.User;
+package io.microsphere.spring.beans;
+
+
 import org.junit.jupiter.api.Test;
-import org.springframework.context.annotation.Configuration;
 
+import static io.microsphere.spring.beans.BeanSource.BEAN_FACTORY;
+import static io.microsphere.spring.beans.BeanSource.JAVA_SERVICE_PROVIDER;
+import static io.microsphere.spring.beans.BeanSource.SPRING_FACTORIES;
+import static io.microsphere.spring.beans.BeanSource.values;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * {@link EnableConfigurationBeanBindings} Test cases
- *
- * @since 1.0.0
+ * {@link BeanSource} Test
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
+ * @see BeanSource
+ * @since 1.0.0
  */
-@EnableConfigurationBeanBindings(
-        @EnableConfigurationBeanBinding(prefix = "usr", type = User.class)
-)
-@Configuration
-class EnableConfigurationBeanBindingsTest extends AbstractEnableConfigurationBeanBindingTest {
+class BeanSourceTest {
 
     @Test
-    void testUser() {
-        User user = context.getBean("m", User.class);
-        assertEquals("mercyblitz", user.getName());
-        assertEquals(34, user.getAge());
+    void test() {
+        BeanSource[] values = values();
+        assertEquals(3, values.length);
+        assertEquals(BEAN_FACTORY, values[0]);
+        assertEquals(SPRING_FACTORIES, values[1]);
+        assertEquals(JAVA_SERVICE_PROVIDER, values[2]);
     }
 }
