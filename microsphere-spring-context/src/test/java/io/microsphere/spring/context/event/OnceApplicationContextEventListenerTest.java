@@ -31,14 +31,12 @@ import static io.microsphere.collection.MapUtils.newLinkedHashMap;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
 /**
  * {@link OnceApplicationContextEventListener} Test
  *
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see OnceApplicationContextEventListener
  * @since 1.0.0
- *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  */
 @SpringLoggingTest
 class OnceApplicationContextEventListenerTest {
@@ -92,7 +90,6 @@ class OnceApplicationContextEventListenerTest {
         public MyContextEventListener(ApplicationContext applicationContext) {
             super(applicationContext);
         }
-
 
         private final Map<EventObject, AtomicInteger> eventsHandledCount = newLinkedHashMap();
 

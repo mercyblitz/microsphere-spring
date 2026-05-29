@@ -17,7 +17,6 @@
 
 package io.microsphere.spring.webflux.metadata;
 
-
 import io.microsphere.spring.test.webflux.AbstractWebFluxTest;
 import io.microsphere.spring.test.webflux.SimpleUrlHandlerMappingTestConfig;
 import io.microsphere.spring.web.metadata.WebEndpointMapping;
@@ -44,8 +43,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = {
         SimpleUrlHandlerMappingTestConfig.class,
         HandlerMappingWebEndpointMappingResolver.class,
-        HandlerMappingWebEndpointMappingResolverTest.class,
-
+        HandlerMappingWebEndpointMappingResolverTest.class
 })
 class HandlerMappingWebEndpointMappingResolverTest extends AbstractWebFluxTest {
 

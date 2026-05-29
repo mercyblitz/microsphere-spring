@@ -16,7 +16,6 @@
  */
 package io.microsphere.spring.context.event;
 
-
 import io.microsphere.spring.test.domain.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +23,12 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.annotation.Import;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
+import static io.microsphere.spring.context.event.ParallelPreInstantiationSingletonsBeanFactoryListener.THREADS_PROPERTY_NAME;
+import static io.microsphere.spring.context.event.ParallelPreInstantiationSingletonsBeanFactoryListener.THREAD_NAME_PREFIX_PROPERTY_NAME;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
@@ -38,8 +40,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 @ContextConfiguration(classes = ParallelPreInstantiationSingletonsBeanFactoryListenerTest.Config.class)
 @TestPropertySource(properties = {
-        ParallelPreInstantiationSingletonsBeanFactoryListener.THREADS_PROPERTY_NAME + "=2",
-        ParallelPreInstantiationSingletonsBeanFactoryListener.THREAD_NAME_PREFIX_PROPERTY_NAME + "=TestThread-"
+        THREADS_PROPERTY_NAME + "=2",
+        THREAD_NAME_PREFIX_PROPERTY_NAME + "=TestThread-"
 })
 class ParallelPreInstantiationSingletonsBeanFactoryListenerTest extends AbstractEventListenerTest<ParallelPreInstantiationSingletonsBeanFactoryListener> {
 
@@ -78,8 +80,8 @@ class ParallelPreInstantiationSingletonsBeanFactoryListenerTest extends Abstract
         listener.setBeanFactory(factory);
 
         // Use a mock environment that returns 0 for the threads property
-        org.springframework.mock.env.MockEnvironment env = new org.springframework.mock.env.MockEnvironment();
-        env.setProperty(ParallelPreInstantiationSingletonsBeanFactoryListener.THREADS_PROPERTY_NAME, "0");
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty(THREADS_PROPERTY_NAME, "0");
         listener.setEnvironment(env);
 
         // Must not throw and must complete quickly since no threads are created

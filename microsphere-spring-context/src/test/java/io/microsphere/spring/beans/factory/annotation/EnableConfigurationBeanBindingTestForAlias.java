@@ -15,13 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * {@link EnableConfigurationBeanBinding} Test
  *
- * @author
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @since 1.0.0
  */
 @EnableConfigurationBeanBinding(prefix = "users",
         type = User.class, multiple = true, ignoreUnknownFields = false, ignoreInvalidFields = false)
 class EnableConfigurationBeanBindingTestForAlias extends AbstractEnableConfigurationBeanBindingTest {
-
 
     @Test
     void test() {
