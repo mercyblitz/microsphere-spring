@@ -30,7 +30,6 @@ import static io.microsphere.spring.context.annotation.ConfigurationPropertyOver
 import static io.microsphere.spring.context.annotation.ConfigurationPropertyOverrideAnnotationAttributesStrategy.getPrefixPropertyName;
 import static io.microsphere.spring.context.annotation.ConfigurationPropertyOverrideAnnotationAttributesStrategyTest.VALUE_1;
 import static io.microsphere.spring.core.annotation.AnnotationUtils.getAnnotationAttributes;
-import static io.microsphere.util.ArrayUtils.EMPTY_STRING_ARRAY;
 import static io.microsphere.util.ArrayUtils.ofArray;
 import static io.microsphere.util.StringUtils.EMPTY_STRING;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -54,7 +53,7 @@ class ConfigurationPropertyOverrideAnnotationAttributesStrategyTest {
 
     private static final Class<PropertySource> ANNOTATION_CLASS = PropertySource.class;
 
-    private static final AnnotationAttributes IMPORT_OPTIONAL_ATTRIBUTTES = getAnnotationAttributes(ConfigurationPropertyOverrideAnnotationAttributesStrategyTest.class,
+    private static final AnnotationAttributes ATTRIBUTTES = getAnnotationAttributes(ConfigurationPropertyOverrideAnnotationAttributesStrategyTest.class,
             ANNOTATION_CLASS, null, false);
 
     private static final String VALUE_ATTRIBUTE_NAME = "value";
@@ -72,7 +71,7 @@ class ConfigurationPropertyOverrideAnnotationAttributesStrategyTest {
         this.strategy = new ConfigurationPropertyOverrideAnnotationAttributesStrategy();
         this.strategy.setEnvironment(environment);
 
-        assertArrayEquals(ofArray(VALUE_1), IMPORT_OPTIONAL_ATTRIBUTTES.getStringArray(VALUE_ATTRIBUTE_NAME));
+        assertArrayEquals(ofArray(VALUE_1), ATTRIBUTTES.getStringArray(VALUE_ATTRIBUTE_NAME));
     }
 
     @Test
@@ -80,7 +79,7 @@ class ConfigurationPropertyOverrideAnnotationAttributesStrategyTest {
         String propertyNamePrefix = this.strategy.getPropertyNamePrefix(ANNOTATION_CLASS);
         environment.setProperty(propertyNamePrefix + VALUE_ATTRIBUTE_NAME, VALUE_1 + "," + VALUE_2);
 
-        AnnotationAttributes overriddenAttributtes = this.strategy.override(ANNOTATION_CLASS, IMPORT_OPTIONAL_ATTRIBUTTES, null);
+        AnnotationAttributes overriddenAttributtes = this.strategy.override(ATTRIBUTTES, ANNOTATION_CLASS, null);
         assertArrayEquals(ofArray(VALUE_1, VALUE_2), overriddenAttributtes.getStringArray(VALUE_ATTRIBUTE_NAME));
     }
 
@@ -89,8 +88,8 @@ class ConfigurationPropertyOverrideAnnotationAttributesStrategyTest {
         String propertyNamePrefix = this.strategy.getPropertyNamePrefix(ANNOTATION_CLASS);
         environment.setProperty(propertyNamePrefix + VALUE_ATTRIBUTE_NAME, VALUE_1);
 
-        AnnotationAttributes overriddenAttributtes = this.strategy.override(ANNOTATION_CLASS, IMPORT_OPTIONAL_ATTRIBUTTES, null);
-        assertArrayEquals(IMPORT_OPTIONAL_ATTRIBUTTES.getStringArray(VALUE_ATTRIBUTE_NAME), overriddenAttributtes.getStringArray(VALUE_ATTRIBUTE_NAME));
+        AnnotationAttributes overriddenAttributtes = this.strategy.override(ATTRIBUTTES, ANNOTATION_CLASS, null);
+        assertArrayEquals(ATTRIBUTTES.getStringArray(VALUE_ATTRIBUTE_NAME), overriddenAttributtes.getStringArray(VALUE_ATTRIBUTE_NAME));
     }
 
     @Test
@@ -98,14 +97,14 @@ class ConfigurationPropertyOverrideAnnotationAttributesStrategyTest {
         String propertyNamePrefix = this.strategy.getPropertyNamePrefix(ANNOTATION_CLASS);
         environment.setProperty(propertyNamePrefix + "a", VALUE_1);
 
-        AnnotationAttributes overriddenAttributtes = this.strategy.override(ANNOTATION_CLASS, IMPORT_OPTIONAL_ATTRIBUTTES, null);
-        assertArrayEquals(IMPORT_OPTIONAL_ATTRIBUTTES.getStringArray(VALUE_ATTRIBUTE_NAME), overriddenAttributtes.getStringArray(VALUE_ATTRIBUTE_NAME));
+        AnnotationAttributes overriddenAttributtes = this.strategy.override(ATTRIBUTTES, ANNOTATION_CLASS, null);
+        assertArrayEquals(ATTRIBUTTES.getStringArray(VALUE_ATTRIBUTE_NAME), overriddenAttributtes.getStringArray(VALUE_ATTRIBUTE_NAME));
     }
 
     @Test
     void testOverrieOnNoConfigurationProperties() {
-        AnnotationAttributes overriddenAttributtes = this.strategy.override(ANNOTATION_CLASS, IMPORT_OPTIONAL_ATTRIBUTTES, null);
-        assertSame(IMPORT_OPTIONAL_ATTRIBUTTES, overriddenAttributtes);
+        AnnotationAttributes overriddenAttributtes = this.strategy.override(ATTRIBUTTES, ANNOTATION_CLASS, null);
+        assertSame(ATTRIBUTTES, overriddenAttributtes);
     }
 
     @Test
@@ -113,8 +112,8 @@ class ConfigurationPropertyOverrideAnnotationAttributesStrategyTest {
         String propertyNamePrefix = this.strategy.getPropertyNamePrefix(ANNOTATION_CLASS);
         environment.setProperty(propertyNamePrefix + FACTORY_ATTRIBUTE_NAME, EMPTY_STRING);
 
-        AnnotationAttributes overriddenAttributtes = this.strategy.override(ANNOTATION_CLASS, IMPORT_OPTIONAL_ATTRIBUTTES, null);
-        assertEquals(IMPORT_OPTIONAL_ATTRIBUTTES.getClass(FACTORY_ATTRIBUTE_NAME), overriddenAttributtes.getClass(FACTORY_ATTRIBUTE_NAME));
+        AnnotationAttributes overriddenAttributtes = this.strategy.override(ATTRIBUTTES, ANNOTATION_CLASS, null);
+        assertEquals(ATTRIBUTTES.getClass(FACTORY_ATTRIBUTE_NAME), overriddenAttributtes.getClass(FACTORY_ATTRIBUTE_NAME));
     }
 
     @Test
