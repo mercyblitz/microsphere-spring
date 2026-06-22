@@ -35,26 +35,47 @@ import static java.lang.Boolean.parseBoolean;
  * An {@link ApplicationContextInitializer} implementation that registers a
  * {@link ListenableAutowireCandidateResolver} to provide extensible autowiring
  * capabilities within the Spring application context.
+ * <p>
+ * It allows developers to customize the autowire candidate resolution strategy
+ * based on specific requirements, such as conditional bean matching or external configuration.
+ * The functionality is disabled by default and can be enabled via configuration properties.
+ *
+ * <h3>Configuration Properties</h3>
+ * <ul>
+ *     <li>{@code microsphere.spring.listenable-autowire-candidate-resolver.enabled} -
+ *         Whether to enable the {@link ListenableAutowireCandidateResolver} (default: {@code false}).</li>
+ * </ul>
  *
  * <h3>Example Usage</h3>
+ * <h4>1. Configuration</h4>
+ * <p><strong> application.properties (Spring Boot):</strong></p>
+ * <pre>
+ * microsphere.spring.listenable-autowire-candidate-resolver.enabled=true
+ * </pre>
+ *
+ * <p><strong> spring.factories (Spring Boot):</strong></p>
  * <pre>{@code
- * public class MyConfig implements WebMvcConfigurer {
- *     // Configuration code...
- * }
+ * org.springframework.context.ApplicationContextInitializer=\
+ * io.microsphere.spring.beans.factory.support.ListenableAutowireCandidateResolverInitializer
  * }</pre>
  *
- * <p>This initializer should be registered with a {@link org.springframework.context.ApplicationContext}
- * to enable custom autowiring logic during the application context initialization phase.
+ * <h4>2. Programmatic</h4>
+ * <pre>{@code
+ * new SpringApplicationBuilder(MyApplication.class)
+ *  .initializers(new ListenableAutowireCandidateResolverInitializer())
+ *  .properties("microsphere.spring.listenable-autowire-candidate-resolver.enabled=true")
+ *  .run(args);
+ * }</pre>
  *
- * @author <a href="mailto:mercyblitz@gmail.com">Mercy<a/>
+ * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
  * @see ListenableAutowireCandidateResolver
- * @see ApplicationContextInitializer
+ * @see ConfigurableApplicationContextInitializer
  * @since 1.0.0
  */
 public class ListenableAutowireCandidateResolverInitializer extends ConfigurableApplicationContextInitializer {
 
     /**
-     * The prefix of the property name of {@link ListenableConfigurableEnvironment} : "microsphere.spring.listenable-autowire-candidate-resolver."
+     * The prefix of the property name of {@link ListenableAutowireCandidateResolver} : "microsphere.spring.listenable-autowire-candidate-resolver."
      */
     public static final String PROPERTY_NAME_PREFIX = MICROSPHERE_SPRING_PROPERTY_NAME_PREFIX + "listenable-autowire-candidate-resolver.";
 
