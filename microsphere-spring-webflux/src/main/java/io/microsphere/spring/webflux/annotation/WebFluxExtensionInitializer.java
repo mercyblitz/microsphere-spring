@@ -14,84 +14,58 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.microsphere.spring.core.env;
+
+package io.microsphere.spring.webflux.annotation;
 
 import io.microsphere.annotation.ConfigurationProperty;
 import io.microsphere.constants.PropertyConstants;
 import io.microsphere.spring.context.ConfigurableApplicationContextInitializer;
+import io.microsphere.spring.core.env.ListenableConfigurableEnvironment;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
+import static io.microsphere.constants.SymbolConstants.DOT;
+import static io.microsphere.spring.beans.factory.support.BeanRegistrar.registerBeanDefinition;
 import static io.microsphere.spring.constants.PropertyConstants.MICROSPHERE_SPRING_PROPERTY_NAME_PREFIX;
 import static java.lang.Boolean.parseBoolean;
 
 /**
- * An {@link ApplicationContextInitializer} implementation that initializes {@link ConfigurableEnvironment}
- * with {@link ListenableConfigurableEnvironment} to enable listening for environment changes.
- *
- * <h3>Configuration Properties</h3>
- * <ul>
- *     <li>{@code microsphere.spring.listenable-environment.enabled} -
- *         Whether to enable the {@link ListenableConfigurableEnvironment} (default: {@code false}).</li>
- * </ul>
- *
- * <h3>Example Usage</h3>
- * <h4>1. Configuration</h4>
- * <p><strong> application.properties (Spring Boot):</strong></p>
- * <pre>
- * microsphere.spring.listenable-environment.enabled=true
- * </pre>
- *
- * <p><strong> spring.factories (Spring Boot):</strong></p>
- * <pre>{@code
- * org.springframework.context.ApplicationContextInitializer=\
- * io.microsphere.spring.beans.factory.support.ListenableConfigurableEnvironmentInitializer
- * }</pre>
- *
- * <h4>2. Programmatic</h4>
- * <pre>{@code
- * new SpringApplicationBuilder(MyApplication.class)
- *  .initializers(new ListenableConfigurableEnvironmentInitializer())
- *  .properties("microsphere.spring.listenable-environment.enabled=true")
- *  .run(args);
- * }</pre>
+ * {@link ApplicationContextInitializer} class for {@link EnableWebFluxExtension}
  *
  * @author <a href="mailto:mercyblitz@gmail.com">Mercy</a>
- * @see ListenableConfigurableEnvironment
- * @see EnvironmentListener
- * @see ProfileListener
- * @see PropertyResolverListener
+ * @see EnableWebFluxExtension
  * @see ApplicationContextInitializer
  * @since 1.0.0
  */
-public class ListenableConfigurableEnvironmentInitializer extends ConfigurableApplicationContextInitializer {
+public class WebFluxExtensionInitializer extends ConfigurableApplicationContextInitializer {
 
     /**
-     * The prefix of the property name of {@link ListenableConfigurableEnvironment} : "microsphere.spring.listenable-environment."
+     * The prefix of the property name of {@link ListenableConfigurableEnvironment} : "microsphere.spring.webflux."
      */
-    public static final String PROPERTY_NAME_PREFIX = MICROSPHERE_SPRING_PROPERTY_NAME_PREFIX + "listenable-environment.";
+    public static final String PROPERTY_NAME_PREFIX = MICROSPHERE_SPRING_PROPERTY_NAME_PREFIX + "webflux" + DOT;
 
-    private static final String DEFAULT_ENABLED = "false";
+    private static final String DEFAULT_ENABLED = "true";
 
     /**
-     * The property name of {@link ListenableConfigurableEnvironment} to be 'enabled' : "microsphere.spring.listenable-environment.enabled"
+     * Environment property that can be used to override when {@link EnableWebFluxExtension the extension features of
+     * WebFlux is enabled}: "microsphere.spring.webflux.enabled"
      */
     @ConfigurationProperty(
             type = boolean.class,
             defaultValue = DEFAULT_ENABLED,
-            description = "Whether to enable the ListenableConfigurableEnvironment"
+            description = "Whether to enable the @EnableWebFluxExtension"
     )
     public static final String ENABLED_PROPERTY_NAME = PROPERTY_NAME_PREFIX + PropertyConstants.ENABLED_PROPERTY_NAME;
 
     /**
-     * The default property value of {@link ListenableConfigurableEnvironment} to be 'enabled'
+     * The default property value of {@link EnableWebFluxExtension @EnableWebFluxExtension} to be 'enabled'
      */
     public static final boolean DEFAULT_ENABLED_PROPERTY_VALUE = parseBoolean(DEFAULT_ENABLED);
 
     @Override
     protected void initialize(ConfigurableApplicationContext context, ConfigurableEnvironment environment) {
-        context.setEnvironment(new ListenableConfigurableEnvironment(context));
+        registerBeanDefinition(context.getBeanFactory(), Config.class);
     }
 
     @Override
@@ -102,5 +76,9 @@ public class ListenableConfigurableEnvironmentInitializer extends ConfigurableAp
     @Override
     public boolean getDefaultEnabled() {
         return DEFAULT_ENABLED_PROPERTY_VALUE;
+    }
+
+    @EnableWebFluxExtension
+    static class Config {
     }
 }
